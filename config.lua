@@ -27,3 +27,4 @@ lua_path = "./lualib/?.lua;"..lua_path
 web_port = 7890
 web_worker_num = 10
 
+web_socket_port = 9999
