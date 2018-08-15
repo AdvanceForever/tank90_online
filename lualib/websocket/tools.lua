@@ -116,7 +116,7 @@ local sha1_wiki = function(msg)
     for i=1,80 do
       local k,f
       if i > 0 and i < 21 then
-        f = (b|c) | ((~b) & d)
+        f = (b&c) | ((~b) & d)
         k = 0x5A827999
       elseif i > 20 and i < 41 then
         f = b ~ c ~ d
