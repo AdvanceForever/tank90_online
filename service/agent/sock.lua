@@ -128,6 +128,8 @@ local function _recv()
 end
 
 function sock.loop(fd)
+    print(fd)
+
     socket.start(fd)
 
     skynet.error("<websocket>start handshake")

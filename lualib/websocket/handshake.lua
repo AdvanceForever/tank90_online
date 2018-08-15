@@ -86,7 +86,8 @@ local accept_upgrade = function(request,protocols)
   local lines = {
     'HTTP/1.1 101 Switching Protocols',
     'Upgrade: websocket',
-    'Connection: '..headers['connection'],
+--    'Connection: '..headers['connection'],
+    'Connection: keep-alive, Upgrade',
     string.format('Sec-WebSocket-Accept: %s',sec_websocket_accept(headers['sec-websocket-key'])),
   }
   if prot then
