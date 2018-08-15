@@ -41,7 +41,7 @@ local xor_mask = function(encoded,mask,payload)
     local original = {sbyte(encoded,p,last)}
     for i=1,#original do
       local j = (i-1) % 4 + 1
-      transformed[i] = bxor(original[i],mask[j])
+      transformed[i] = original[i] ~ mask[j]
     end
     local xored = schar(unpack(transformed,1,#original))
     tinsert(transformed_arr,xored)
@@ -64,24 +64,24 @@ end
 local encode = function(data,opcode,masked,fin)
   local header = opcode or 1-- TEXT is default opcode
   if fin == nil or fin == true then
-    header = bor(header,bit_7)
+    header = header | bit_7
   end
   local payload = 0
   if masked then
-    payload = bor(payload,bit_7)
+    payload = payload | bit_7
   end
   local len = #data
   local chunks = {}
   if len < 126 then
-    payload = bor(payload,len)
+    payload = payload | len
     tinsert(chunks,encode_header_small(header,payload))
   elseif len <= 0xffff then
-    payload = bor(payload,126)
+    payload = payload | 126
     tinsert(chunks,encode_header_medium(header,payload,len))
   elseif len < 2^53 then
     local high = mfloor(len/2^32)
     local low = len - high*2^32
-    payload = bor(payload,127)
+    payload = payload | 127
     tinsert(chunks,encode_header_big(header,payload,high,low))
   end
   if not masked then

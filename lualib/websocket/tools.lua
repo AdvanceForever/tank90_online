@@ -1,12 +1,3 @@
-local bit = require'websocket.bit'
-local mime = require'mime.core'
-local rol = bit.rol
-local bxor = bit.bxor
-local bor = bit.bor
-local band = bit.band
-local bnot = bit.bnot
-local lshift = bit.lshift
-local rshift = bit.rshift
 local sunpack = string.unpack
 local srep = string.rep
 local schar = string.char
@@ -14,6 +5,16 @@ local tremove = table.remove
 local tinsert = table.insert
 local tconcat = table.concat
 local mrandom = math.random
+local crypt = require "skynet.crypt"
+
+local function rol(i,d)
+    return (i<<d) | (r>>(32-d))
+end
+
+local function ror(i,d)
+    d = -d
+    return (i<<d) | (r>>(32-d))
+end
 
 local read_n_bytes = function(str, pos, n)
   pos = pos or 1
@@ -26,16 +27,12 @@ end
 
 local read_int16 = function(str, pos)
   local new_pos,a,b = read_n_bytes(str, pos, 2)
-  return new_pos, lshift(a, 8) + b
+  return new_pos, (a << 8) + b
 end
 
 local read_int32 = function(str, pos)
   local new_pos,a,b,c,d = read_n_bytes(str, pos, 4)
-  return new_pos,
-  lshift(a, 24) +
-  lshift(b, 16) +
-  lshift(c, 8 ) +
-  d
+  return new_pos, (a << 24) + (b << 16) + (c << 8 ) + d
 end
 
 local pack_bytes = string.char
@@ -43,15 +40,15 @@ local pack_bytes = string.char
 local write_int8 = pack_bytes
 
 local write_int16 = function(v)
-  return pack_bytes(rshift(v, 8), band(v, 0xFF))
+  return pack_bytes((v >> 8), v & 0xFF)
 end
 
 local write_int32 = function(v)
   return pack_bytes(
-    band(rshift(v, 24), 0xFF),
-    band(rshift(v, 16), 0xFF),
-    band(rshift(v,  8), 0xFF),
-    band(v, 0xFF)
+    (v >> 24) & 0xFF,
+    (v >> 16) & 0xFF,
+    (v >>  8) & 0xFF,
+    v & 0xFF
   )
 end
 
@@ -107,7 +104,7 @@ local sha1_wiki = function(msg)
     until next > 64
     assert(#words==16)
     for i=17,80 do
-      words[i] = bxor(words[i-3],words[i-8],words[i-14],words[i-16])
+      words[i] = words[i-3] ~ words[i-8] ~ words[i-14] ~ words[i-16]
       words[i] = rol(words[i],1)
     end
     local a = h0
@@ -119,16 +116,16 @@ local sha1_wiki = function(msg)
     for i=1,80 do
       local k,f
       if i > 0 and i < 21 then
-        f = bor(band(b,c),band(bnot(b),d))
+        f = (b|c) | ((~b) & d)
         k = 0x5A827999
       elseif i > 20 and i < 41 then
-        f = bxor(b,c,d)
+        f = b ~ c ~ d
         k = 0x6ED9EBA1
       elseif i > 40 and i < 61 then
-        f = bor(band(b,c),band(b,d),band(c,d))
+        f = (b & c) | (b & d) | (c & d)
         k = 0x8F1BBCDC
       elseif i > 60 and i < 81 then
-        f = bxor(b,c,d)
+        f = b ~ c ~ d
         k = 0xCA62C1D6
       end
 
@@ -149,18 +146,16 @@ local sha1_wiki = function(msg)
   end
 
   -- necessary on sizeof(int) == 32 machines
-  h0 = band(h0,0xffffffff)
-  h1 = band(h1,0xffffffff)
-  h2 = band(h2,0xffffffff)
-  h3 = band(h3,0xffffffff)
-  h4 = band(h4,0xffffffff)
+  h0 = h0 & 0xffffffff
+  h1 = h1 & 0xffffffff
+  h2 = h2 & 0xffffffff
+  h3 = h3 & 0xffffffff
+  h4 = h4 & 0xffffffff
 
   return write_int32(h0)..write_int32(h1)..write_int32(h2)..write_int32(h3)..write_int32(h4)
 end
 
-local base64_encode = function(data)
-  return (mime.b64(data))
-end
+local base64_encode = crypt.base64encode
 
 local DEFAULT_PORTS = {ws = 80, wss = 443}
 
