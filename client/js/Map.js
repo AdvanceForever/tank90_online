@@ -1,7 +1,7 @@
 function selectMap(level)
 {
 	var i,j;
-	
+
 	level = level % 21;
 	if(level == 0) {level = 21;}
 	
@@ -9,12 +9,12 @@ function selectMap(level)
 	
 	for (i = 0; i < 26; i++ )
 	{
-			for (j = 0; j < 26; j++ )
-			{
-				map[i][j] =tempMap[i][j];
-			}
+		for (j = 0; j < 26; j++ )
+		{
+			map[i][j] =tempMap[i][j];
+		}
 	}
-}	
+}
 
 function drawMap()
 {
@@ -85,9 +85,9 @@ function drawGrass()
 	var myCanvas = document.getElementById("grass");
 	var graphics = myCanvas.getContext("2d");
 	var img = document.getElementById("tankAll");
-	
+
 	graphics.clearRect(0 , 0, 512, 448);
-	
+
 	for(var i=0;i<26;i++)
 	{
 		for(var j=0;j<26;j++)

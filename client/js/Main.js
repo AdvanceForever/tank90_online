@@ -18,7 +18,6 @@ var level = 1;													//¹Ø¿¨
 
 var playerNum = 1;
 
-
 var stopTime;													//ÔÝÍ£Ê±¼ä
 var homeTime;													//¼ÒÎÞµÐÊ±¼ä
 
@@ -38,47 +37,17 @@ var gameState = STATE_GAMESTART;
 var intval = 300;
 var nextIntval = 300;
 
+function global_init(){
+	connect();
+}
+
 function main()
 {
+	global_init();
 	game = setInterval("loop()",21);
 }
 
-gamePaused = false; // Victor Fang 20151129, Pause state flag
-//game = setTimeout(loop, 1000 / 30);
-
-
-/*
-function ailoop()
-{
-	var p;
-	if (gameState == STATE_PLAY)
-	{
-		var astar_map = new Array(25);
-
-		for(i=0; i<25; i++)
-			astar_map[i] = new Array(25);
-
-		pre_process_map(map, astar_map);
-
-		for(i = playerNum; i < tanks.length ; i ++)
-		{
-		        var x = Math.round(parseFloat(tanks[i].x/16));
-		        var y = Math.round(parseFloat(tanks[i].y/16));
-			var score = tanks[i].score;
-
-			if(stopTime == 0) {
-				if(map[23][12] == GRID)
-					p = astar(x, y, 12, 22, astar_map, score);
-				else
-					p = astar(x, y, 12, 24, astar_map, score);
-
-				tanks[i].next = p;
-			}
-		}
-
-	}
-}
-*/
+gamePaused = false;
 
 function loop()
 {
@@ -116,7 +85,6 @@ function loop()
 		break;
 	}
 }
-
 
 document.onkeydown = function(e)
 {
@@ -203,13 +171,11 @@ function initGame()
 	tanks = [];
 	key = {};
 
-	addTank(129,385,0,1);
-	player1 = tanks[0];
+	player1 = addTank(129,385,0,1);
 
 	if(playerNum == 2)
 	{
-		addTank(256,385,0,2);
-		player2 = tanks[1];
+		player2 = addTank(256,385,0,2);
 	}
 
 	for(var i = 0; i < playerNum; i ++)
@@ -220,7 +186,6 @@ function initGame()
 
 	level = 1;
 	initStage();
-
 }
 
 function initStage()
@@ -267,6 +232,8 @@ function addTank(x, y, type, name)
 	}
 	if(tank.type == 0) {tank.name = name;}
 	tanks.push(tank);
+	
+	return tank;
 }
 
 function addTankStart(x, y)
@@ -303,6 +270,7 @@ function addTanks()
 function drawAll()
 {
 	drawMap();
+	// 草地在最上层，最后画
 	drawGrass();
 }
 
@@ -314,16 +282,13 @@ function clear(whichCanvas)
 	graphics.clearRect(0,0,512,448);
 }
 
-
-
 document.onkeyup = function(e)
 {
-        key[e.keyCode] = false;
+    key[e.keyCode] = false;
 }
 
 function keyboardEvent()
 {
-
 	for(var i = 0; i < playerNum; i ++)
 	{
 		if(tanks[i].live == 0) {continue;}
@@ -334,16 +299,7 @@ function keyboardEvent()
 			else if(key[K_DOWN]) {player1.move(DOWN);}
 			else if(key[K_LEFT]) {player1.move(LEFT);}
 			else if(key[K_RIGHT]) {player1.move(RIGHT);}
-		  // Victor Fang 20151129, Fix SPACE / ENTER bug. 
 			if(key[K_SPACE] || key[K_ENTER]) {player1.shot();}
-
-			/*if(key[K_P]) {
-				if(gameState == STATE_PLAY) {
-						gameState = STATE_PAUSE;
-				}else if(gameState == STATE_PAUSE){
-						gameState = STATE_PLAY;
-				}
-			}*/
 		}
 		else if(tanks[i].name == 2)
 		{
@@ -351,8 +307,6 @@ function keyboardEvent()
 			else if(key[K_S]) {player2.move(DOWN);}
 			else if(key[K_A]) {player2.move(LEFT);}
 			else if(key[K_D]) {player2.move(RIGHT);}
-
-			//if(key[K_J]) {player2.shot();}
 			if(key[K_F] || key[K_J]) {player2.shot();}
 		}
 	}
@@ -371,8 +325,6 @@ function updata()
 	keyboardEvent();
 }
 
-
-
 function draw()
 {
 	clear("main");
@@ -384,9 +336,6 @@ function draw()
 	drawFood();
 	drawScoreNums();
 }
-
-
-
 
 function tanksBomb(isBomb)
 {
@@ -431,15 +380,12 @@ function nextStage()
 	initStage();
 }
 
- // Victor Fang 20151129, Pause state flag
 function pauseGame() {
   if (!gamePaused) {
-    //game = clearTimeout(game);
-		game = clearInterval(game);
+	game = clearInterval(game);
     gamePaused = true;
   } else if (gamePaused) {
-    //game = setTimeout(loop, 1000 / 30);
-		game = setInterval("loop()",21);
-		gamePaused = false;
+	game = setInterval("loop()",21);
+	gamePaused = false;
   }
 }

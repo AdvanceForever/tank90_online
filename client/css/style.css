@@ -33,12 +33,12 @@ list-style: none outside none;
 left: -20px;
 }
 
-#player2 {
+#socket {
 position: absolute;
 top: 420px;
 text-align: left;
 list-style: none outside none;
-left: 640px;
+left: -100px;
 }
 
 #game{
