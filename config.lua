@@ -20,6 +20,7 @@ cpath = skynet.."cservice/?.so"
 -- 项目目录 
 luaservice = "./service/?.lua;./service/?/main.lua;"..luaservice
 lua_path = "./lualib/?.lua;"..lua_path
+lua_cpath = "./luaclib/?.so;"..lua_cpath
 
 -- daemon = "./skynet.pid"
 

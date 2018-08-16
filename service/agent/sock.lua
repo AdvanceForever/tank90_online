@@ -3,10 +3,12 @@ local socket = require "skynet.socket"
 local frame  = require "websocket.frame"
 local handshake = require "websocket.handshake"
 local sockethelper = require "http.sockethelper"
+local cjson = require "cjson"
 
 local sock = { }
 local REQUEST = { }
 local FD, read, write
+local handler = nil
 
 local function _send(message)
     local encoded = frame.encode(message, frame.TEXT)
@@ -71,6 +73,7 @@ local function _dispatch(text, opcode)
     if opcode == TEXT then
         -- todo: logic
         print("recv",text)
+        skynet.timeout(0,function() handler(text) end)
         return true
     end
 
@@ -144,6 +147,15 @@ function sock.loop(fd)
 
     skynet.error("<websocket>exit")
     skynet.exit()
+end
+
+function sock.register_handler(h)
+    handler = h
+end
+
+function sock.send(msg)
+    local str = cjson.encode(msg)
+    _send(str)
 end
 
 return sock
