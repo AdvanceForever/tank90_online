@@ -4,15 +4,15 @@ function StageStart()
 		this.frame = 0;
 		this.stageNum = new Num();
 		this.num = true;
-		
+
 		this.xx = images["stageStart"][0];
 		this.yy = images["stageStart"][1];
 }
 
-StageStart.prototype.draw = function(canvas)
+StageStart.prototype.draw = function()
 {
 	var temp;
-	var myCanvas = document.getElementById(canvas);
+	var myCanvas = document.getElementById("stage");
 	var graphics = myCanvas.getContext("2d");
 	var img = document.getElementById("tankAll");
 	
@@ -70,8 +70,6 @@ StageStart.prototype.draw = function(canvas)
 	graphics.fillStyle = "#7f7f7f";
 	graphics.fillRect(0, temp, 512, 15);
 	graphics.fillRect(0, 448 - temp - 15 , 512, 15);
-	
-	
 };
 
 StageStart.prototype.init = function()

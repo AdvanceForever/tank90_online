@@ -2,11 +2,11 @@
 var key = {};													//±£´æ°´¼üÐÅÏ¢
 
 var num = new Num();											//Ò»ÇÐÊý×Ö
-var stageStart = new StageStart();								//¹Ø¿¨¿ªÊ¼
+//var stageStart = new StageStart();								//¹Ø¿¨¿ªÊ¼
 var gamesOver = new GameOver();									//ÓÎÏ·½áÊø
-var gameStart = new GameStart();
+//var gameStart = new GameStart();
 var food = new Food();											//½±Àø
-var tankRun = new TankRun();
+//var tankRun = new TankRun();
 
 var scoreBoard = new ScoreBoard();
 var sound = new Sound();
@@ -32,22 +32,32 @@ var scoreNums = [];
 
 var player1,player2;
 
+var curState;
 var gameState = STATE_GAMESTART;
 
 var intval = 300;
 var nextIntval = 300;
 
+gamePaused = false;
+
+var sceneMgr = new SceneMgr();
+
 function global_init(){
+	sceneMgr.init()
 	connect();
 }
 
 function main()
 {
 	global_init();
-	game = setInterval("loop()",21);
+	game = setInterval("update()",21);
 }
 
-gamePaused = false;
+function update()
+{
+	var curState = sceneMgr.getCurScene()
+	curState.update()
+}
 
 function loop()
 {
@@ -63,7 +73,7 @@ function loop()
 		break;
 
 		case STATE_STAGE_INIT:
-		stageStart.draw("stage");
+		//stageStart.draw("stage");
 		break;
 
 		case STATE_GAMEOVER:
@@ -73,7 +83,7 @@ function loop()
 		break;
 
 		case STATE_SELECT:
-		tankRun.draw();
+		W2.draw();
 		break;
 
 		case STATE_GAMESTART:
@@ -89,48 +99,37 @@ function loop()
 document.onkeydown = function(e)
 {
     e.preventDefault();
-		key[e.keyCode] = true;
+	
+	var curState = sceneMgr.getCurScene()
+	curState.onkeydown(e)
+	
+	return;
+	
+	key[e.keyCode] = true;
 
-		console.log(e.keyCode)
+	console.log(e.keyCode)
 
-		if (e.keyCode == K_P) pauseGame();
+	if (e.keyCode == K_P) pauseGame();
 
-		if(e.keyCode == K_9 &&  (gameState == STATE_SELECT) )
+	if(e.keyCode == K_9 &&  (gameState == STATE_SELECT) )
+	{
+		firstLife = 9;
+	}
+	if(e.keyCode == K_2 &&  (gameState == STATE_PLAY || gameState == STATE_STAGE_INIT) ) nextStage();
+	if(e.keyCode == K_1 &&  (gameState == STATE_PLAY) )food.init();
+	if(e.keyCode == K_0 &&  (gameState == STATE_PLAY) )
+	{
+		if(nextIntval == 300)
 		{
-			firstLife = 9;
+			nextIntval = 100;
+			document.getElementById('fast-mode').innerHTML = "快速出兵模式开启";
 		}
-		if(e.keyCode == K_2 &&  (gameState == STATE_PLAY || gameState == STATE_STAGE_INIT) ) nextStage();
-		if(e.keyCode == K_1 &&  (gameState == STATE_PLAY) )food.init();
-		if(e.keyCode == K_0 &&  (gameState == STATE_PLAY) )
+		else
 		{
-			if(nextIntval == 300)
-			{
-				nextIntval = 100;
-				document.getElementById('fast-mode').innerHTML = "快速出兵模式开启";
-			}
-			else
-			{
-				nextIntval = 300;
-				document.getElementById('fast-mode').innerHTML = "";
-			}
+			nextIntval = 300;
+			document.getElementById('fast-mode').innerHTML = "";
 		}
-
-		else if(e.keyCode == K_UP && gameState == STATE_SELECT) {tankRun.next(-1);}
-		else if(e.keyCode == K_DOWN && gameState == STATE_SELECT) {tankRun.next(1);}
-
-		if( (e.keyCode == K_SPACE || e.keyCode == K_ENTER) && gameState == STATE_SELECT)
-		{
-			if(tankRun.num == 0) { playerNum = 1;}
-			else if(tankRun.num == 1) { playerNum = 2;}
-			else
-			{
-				return;
-			}
-
-			gameState = STATE_INIT;
-			tankRun.init();
-			clear("upp");
-		}
+	}
 }
 
 function gameOver()
@@ -203,7 +202,7 @@ function initStage()
 		initMyTank(tanks[i].name);
 	}
 
-	stageStart.init();
+	//stageStart.init();
 	gameState = STATE_STAGE_INIT;
 }
 

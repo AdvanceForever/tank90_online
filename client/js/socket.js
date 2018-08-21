@@ -1,5 +1,10 @@
 ﻿var websocket = null;
 
+var netHandlerMap = new map();
+function registeNetHandler(cmd,h){
+	
+}
+
 function connect(){
 	//判断当前浏览器是否支持WebSocket
 	if ('WebSocket' in window) {
@@ -28,7 +33,7 @@ function connect(){
 
 	//连接关闭的回调方法
 	websocket.onclose = function () {
-		setMessageInnerHTML("WebSocket连接关闭");
+		console.log("WebSocket连接关闭");
 	}
 }
 
@@ -41,6 +46,8 @@ window.onbeforeunload = function () {
 function closeWebSocket() {
 	websocket.close();
 }
+
+
 
 //发送消息
 function send(msg) {
